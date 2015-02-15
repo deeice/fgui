@@ -111,4 +111,7 @@ void fgui_application_draw(struct fgui_application *app)
 	for (i = 0; i < app->num_children; i++) {
 		fgui_widget_draw(app->children[i]);
 	}
+	// Redraw focus widget after all others because pulldowns can overlap things.
+	if (app->focus_widget->has_focus)
+	  fgui_widget_draw(app->focus_widget);
 }

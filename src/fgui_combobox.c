@@ -16,11 +16,26 @@
 #include "fgui_primitives.h"
 #include "fgui_font.h"
 
+#if 0
 #define FGUI_COMBOBOX_BG_COLOR        FGUI_COLOR(0xcc, 0xcc, 0xcc)
 #define FGUI_COMBOBOX_BORDER_COLOR    FGUI_COLOR(0xaa, 0xaa, 0xaa)
+#else
+#define FGUI_COMBOBOX_BG_COLOR     FGUI_COLOR(0xc0,0xc0,0xc0)
+#define FGUI_COMBOBOX_BORDER_COLOR FGUI_COLOR(0x60, 0x60, 0x60)
+#define FGUI_COMBOBOX_TEXT_COLOR   FGUI_COLOR(0, 0, 0)
+#define FGUI_COMBOBOX_FOCUS_COLOR  FGUI_COLOR(255, 0, 0)
+
+#define FGUI_COMBOBOX_TOP_COLOR    FGUI_COLOR(0xdc, 0xdc, 0xdc)
+#define FGUI_COMBOBOX_TOQ_COLOR    FGUI_COLOR(0xd8, 0xd8, 0xd8)
+#define FGUI_COMBOBOX_TOR_COLOR    FGUI_COLOR(0xc8, 0xc8, 0xc8)
+#define FGUI_COMBOBOX_BOR_COLOR    FGUI_COLOR(0xb8, 0xb8, 0xb8)
+#define FGUI_COMBOBOX_BOQ_COLOR    FGUI_COLOR(0xb0, 0xb0, 0xb0)
+#define FGUI_COMBOBOX_BOT_COLOR    FGUI_COLOR(0xa8, 0xa8, 0xa8)
+#endif
 #define FGUI_COMBOBOX_HIGHLIGHT_COLOR FGUI_COLOR(0x90, 0x90, 0x90)
 #define FGUI_COMBOBOX_TEXT_COLOR      FGUI_COLOR(0, 0, 0)
 #define FGUI_COMBOBOX_FOCUS_COLOR     FGUI_COLOR(255, 0, 0)
+
 
 
 int fgui_combobox_init(struct fgui_combobox *combobox, uint16_t x, uint16_t y,
@@ -131,6 +146,7 @@ void fgui_combobox_draw(struct fgui_widget *widget)
 					FGUI_COMBOBOX_TEXT_COLOR, NULL);
 		}
 	} else {
+#if 0
 		/* combobox background */
 		fgui_fill_rectangle(combobox->base.area.x, combobox->base.area.y,
 				combobox->base.area.w, combobox->base.area.h,
@@ -141,6 +157,43 @@ void fgui_combobox_draw(struct fgui_widget *widget)
 				combobox->base.area.w, combobox->base.area.h,
 				FGUI_COMBOBOX_BORDER_COLOR);
 
+		/* if focus, draw red border */
+		if (combobox->base.has_focus) {
+			fgui_draw_rectangle(combobox->base.area.x, combobox->base.area.y,
+					combobox->base.area.w, combobox->base.area.h,
+					FGUI_COMBOBOX_FOCUS_COLOR);
+		}
+#else
+		int x1 = combobox->base.area.x+2;
+		int y1 = combobox->base.area.y;
+		int x2 = x1+combobox->base.area.w-5;
+		int y2 = y1+combobox->base.area.h-1;
+
+		/* combobox background */
+		fgui_fill_rectangle(combobox->base.area.x, combobox->base.area.y,
+				combobox->base.area.w, combobox->base.area.h,
+				FGUI_COMBOBOX_BG_COLOR);
+
+		/* border */
+		fgui_draw_line(x1, 1+y1, x2, 1+y1, FGUI_COMBOBOX_TOP_COLOR);
+		fgui_draw_line(x1, 2+y1, x2, 2+y1, FGUI_COMBOBOX_TOQ_COLOR);
+		fgui_draw_line(x1, 3+y1, x2, 3+y1, FGUI_COMBOBOX_TOR_COLOR);
+
+		fgui_draw_line(x1, y2-1, x2, y2-1, FGUI_COMBOBOX_BOT_COLOR);
+		fgui_draw_line(x1, y2-2, x2, y2-2, FGUI_COMBOBOX_BOQ_COLOR);
+		fgui_draw_line(x1, y2-3, x2, y2-3, FGUI_COMBOBOX_BOR_COLOR);
+
+		fgui_draw_line(x1-1, y1+2, x1-1, y2-2, FGUI_COMBOBOX_TOP_COLOR);
+		fgui_draw_line(x2+1, y1+2, x2+1, y2-2, FGUI_COMBOBOX_BOT_COLOR);
+
+		fgui_draw_line(x1, y1, x2, y1, FGUI_COMBOBOX_BORDER_COLOR);
+		fgui_draw_line(x1, y2, x2, y2, FGUI_COMBOBOX_BORDER_COLOR);
+		fgui_set_pixel(x1-1,y1+1, FGUI_COMBOBOX_BORDER_COLOR);
+		fgui_set_pixel(x2+1,y1+1, FGUI_COMBOBOX_BORDER_COLOR);
+		fgui_set_pixel(x1-1,y2-1, FGUI_COMBOBOX_BORDER_COLOR);
+		fgui_set_pixel(x2+1,y2-1, FGUI_COMBOBOX_BORDER_COLOR);
+		fgui_draw_line(x1-2, y1+2, x1-2, y2-2, FGUI_COMBOBOX_BORDER_COLOR);
+		fgui_draw_line(x2+2, y1+2, x2+2, y2-2, FGUI_COMBOBOX_BORDER_COLOR);
 
 		/* if focus, draw red border */
 		if (combobox->base.has_focus) {
@@ -148,6 +201,7 @@ void fgui_combobox_draw(struct fgui_widget *widget)
 					combobox->base.area.w, combobox->base.area.h,
 					FGUI_COMBOBOX_FOCUS_COLOR);
 		}
+#endif
 
 		/* current item text */
 		fgui_draw_string(combobox->items[combobox->current_item].text,

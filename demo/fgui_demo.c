@@ -1,8 +1,8 @@
 #include "SDL.h"
 #include "../src/fgui.h"
 
-#define WIDTH 640
-#define HEIGHT 480
+#define WIDTH 320
+#define HEIGHT 240
 
 #define LINEHEIGHT 20 /* pixels */
 
@@ -33,30 +33,28 @@ void render_stuff(void)
 	/* draw background */
 	fgui_fill_rectangle(0, 0, WIDTH, HEIGHT, FGUI_COLOR(221,221,221));
 
-	fgui_draw_string("Use TAB to cycle focus", 50, 1*LINEHEIGHT, 0, NULL);
+	fgui_draw_string("Use TAB to cycle focus", 10, 2+0*LINEHEIGHT, 0, NULL);
 
-	fgui_draw_string("line:", 50, 2*LINEHEIGHT, FGUI_COLOR(0,0,0), NULL);
-	fgui_draw_line(200, 2*LINEHEIGHT, 220, 2*LINEHEIGHT, FGUI_COLOR(0,255,0));
+	fgui_draw_string("line:", 10, 1*LINEHEIGHT, FGUI_COLOR(0,0,0), NULL);
+	fgui_draw_line(160, 1*LINEHEIGHT, 220, 1*LINEHEIGHT, FGUI_COLOR(31,127,31));
 
-	fgui_draw_string("empty rectangle", 50, 3*LINEHEIGHT, FGUI_COLOR(0,0,0), NULL);
-	fgui_draw_rectangle(200, 3*LINEHEIGHT, 10, 10, FGUI_COLOR(0,0,255));
+	fgui_draw_string("empty rectangle", 10, 2*LINEHEIGHT, FGUI_COLOR(0,0,0), NULL);
+	fgui_draw_rectangle(160, 2*LINEHEIGHT, 10, 10, FGUI_COLOR(0,0,255));
 
-	fgui_draw_string("filled rectangle", 50, 4*LINEHEIGHT, 0, NULL);
-	fgui_fill_rectangle(200, 4*LINEHEIGHT, 10, 10, FGUI_COLOR(0, 255, 0));
+	fgui_draw_string("filled rectangle", 10, 3*LINEHEIGHT, 0, NULL);
+	fgui_fill_rectangle(160, 3*LINEHEIGHT, 10, 10, FGUI_COLOR(31, 191, 31));
 
-	fgui_draw_string("circle", 50, 5*LINEHEIGHT, FGUI_COLOR(0,0,0), NULL);
-	fgui_draw_circle(200, 5*LINEHEIGHT, 5, FGUI_COLOR(255, 255, 255));
+	fgui_draw_string("circle", 10, 4*LINEHEIGHT, FGUI_COLOR(0,0,0), NULL);
+	fgui_draw_circle(160+5, 5+4*LINEHEIGHT, 5, FGUI_COLOR(255, 255, 255));
 
-	//fgui_draw_triangle(50, 50, 55, 55, 60, 50, 0xff);
-
-	fgui_draw_string("this colored string\nspans multiple\nlines", 200, 6*LINEHEIGHT,
+	fgui_draw_string("this colored string\nspans multiple\nlines", 160, 5*LINEHEIGHT,
 		FGUI_COLOR(255,0,0), NULL);
 
-	fgui_draw_string("push button", 50, 8*LINEHEIGHT, FGUI_COLOR(0,0,0), NULL);
-	fgui_draw_string("2nd push button", 50, 9*LINEHEIGHT, FGUI_COLOR(0,0,0), NULL);
-	fgui_draw_string("label widget", 50, 11*LINEHEIGHT, FGUI_COLOR(0,0,0), NULL);
-	fgui_draw_string("combobox", 50, 10*LINEHEIGHT, FGUI_COLOR(0,0,0), NULL);
-	fgui_draw_string("lineedit", 50, 12*LINEHEIGHT, FGUI_COLOR(0,0,0), NULL);
+	fgui_draw_string("push button", 10, 7*LINEHEIGHT, FGUI_COLOR(0,0,0), NULL);
+	fgui_draw_string("2nd push button", 10, 8*LINEHEIGHT, FGUI_COLOR(0,0,0), NULL);
+	fgui_draw_string("label widget", 10, 10*LINEHEIGHT, FGUI_COLOR(0,0,0), NULL);
+	fgui_draw_string("combobox", 10, 9*LINEHEIGHT, FGUI_COLOR(0,0,0), NULL);
+	fgui_draw_string("lineedit", 10, 11*LINEHEIGHT, FGUI_COLOR(0,0,0), NULL);
 
 	fgui_application_draw(&app);
 }
@@ -117,11 +115,11 @@ int main(int argc, char *argv[])
 	};
 
 	fgui_application_init(&app);
-	fgui_button_init(&button, 200, 8*LINEHEIGHT, 82, 12, "hello world", NULL);
-	fgui_button_init(&button2, 200, 9*LINEHEIGHT, 82, 12, "hello world 2", NULL);
-	fgui_combobox_init(&combobox, 200, 10*LINEHEIGHT, 60, 12, NULL);
-	fgui_label_init(&label, 200, 11*LINEHEIGHT, 150, 20, "hello fgui label", NULL);
-	fgui_lineedit_init(&lineedit, 200, 12*LINEHEIGHT, 100, 15, NULL);
+	fgui_button_init(&button, 160, 7*LINEHEIGHT, 82, 15, "hello world", NULL);
+	fgui_button_init(&button2, 160, 8*LINEHEIGHT, 82, 15, "hello world 2", NULL);
+	fgui_combobox_init(&combobox, 160, 9*LINEHEIGHT, 60, 15, NULL);
+	fgui_label_init(&label, 160, 10*LINEHEIGHT, 150, 20, "hello fgui label", NULL);
+	fgui_lineedit_init(&lineedit, 160, 11*LINEHEIGHT, 100, 15, NULL);
 	fgui_combobox_add_item(&combobox, "item1");
 	fgui_combobox_add_item(&combobox, "item2");
 	fgui_combobox_add_item(&combobox, "item3");

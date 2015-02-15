@@ -30,6 +30,17 @@ static int get_char_index(char ch)
 	return -1;
 }
 
+/* To make it easy, perhaps I can give MAX width/height when c is 0. */
+int fgui_char_width(const int c)
+{
+  return cWidth[0];
+}
+
+int fgui_char_height(const int c)
+{
+  return cHeight[0];
+}
+
 /** draw a single character */
 static int draw_char(char ch, uint16_t xpos, uint16_t ypos, uint32_t color,
 		struct fgui_rect *clip)
@@ -77,7 +88,7 @@ void fgui_draw_string(const char *str, uint16_t x, uint16_t y, uint32_t color,
 			column = 0;
 			continue;
 		}
-		draw_char(str[i], x + column*char_width, y + line*char_height, color, clip);
+		draw_char(str[i], x + column*char_width, 1+y + line*char_height, color, clip);
 		column++;
 	}
 }
