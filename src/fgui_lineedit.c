@@ -66,8 +66,8 @@ void fgui_lineedit_draw(struct fgui_widget *widget)
 	/* draw cursor (if we have focus) */
 	if (lineedit->base.has_focus) {
 		/* assume monospaced font */
-		char_width = cWidth[0];
-		char_height = cHeight[0];
+		char_width = fgui_char_width(0);
+		char_height = fgui_char_height(0);
 		fgui_draw_line(lineedit->base.area.x + 4 + lineedit->cursor * char_width,
 				lineedit->base.area.y + 2,
 				lineedit->base.area.x + 4 + lineedit->cursor * char_width,
@@ -119,8 +119,10 @@ int fgui_lineedit_event_handler(struct fgui_widget *widget, struct fgui_event *e
 
 	if (event->type == FGUI_EVENT_KEYDOWN && isprint(event->key.keycode)) {
 		if (strlen(lineedit->text) < FGUI_LINEEDIT_MAX_TEXTLEN - 1) {
+		  if (lineedit->base.area.w > 4 + (1+strlen(lineedit->text)) * fgui_char_width(0)) {
 			insert_char(lineedit->text, lineedit->cursor, event->key.keycode);
 			lineedit->cursor++;
+		  }
 		}
 		ret = 0;
 	} else if (event->type == FGUI_EVENT_KEYDOWN &&
