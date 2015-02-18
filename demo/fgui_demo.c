@@ -15,6 +15,7 @@ struct fgui_button button2;
 struct fgui_label label;
 struct fgui_combobox combobox;
 struct fgui_lineedit lineedit;
+struct fgui_checkbox checkbox;
 
 // define the "callback" that fgui uses to set pixels
 void fgui_set_pixel(uint16_t x, uint16_t y, uint32_t color)
@@ -35,21 +36,30 @@ void render_stuff(void)
 
 	fgui_draw_string("Use TAB to cycle focus", 10, 2+0*LINEHEIGHT, 0, NULL);
 
-	fgui_draw_string("line:", 10, 1*LINEHEIGHT, FGUI_COLOR(0,0,0), NULL);
+	fgui_draw_string("Line", 10, 1*LINEHEIGHT, FGUI_COLOR(0,0,0), NULL);
 	fgui_draw_line(160, 1*LINEHEIGHT, 220, 1*LINEHEIGHT, FGUI_COLOR(31,127,31));
 
-	fgui_draw_string("empty rectangle", 10, 2*LINEHEIGHT, FGUI_COLOR(0,0,0), NULL);
+	fgui_draw_string("Rectangles", 10, 2*LINEHEIGHT, 0, NULL);
 	fgui_draw_rectangle(160, 2*LINEHEIGHT, 10, 10, FGUI_COLOR(0,0,255));
+	fgui_fill_rectangle(160+20, 2*LINEHEIGHT, 10, 10, FGUI_COLOR(31, 191, 31));
+	fgui_fill_rectangle(160+40, 2*LINEHEIGHT, 10, 10, FGUI_COLOR(31, 191, 31));
+	fgui_draw_rectangle(160+40, 2*LINEHEIGHT, 10, 10, FGUI_COLOR(0,0,255));
 
-	fgui_draw_string("filled rectangle", 10, 3*LINEHEIGHT, 0, NULL);
-	fgui_fill_rectangle(160, 3*LINEHEIGHT, 10, 10, FGUI_COLOR(31, 191, 31));
+	fgui_draw_string("Circles", 10, 3*LINEHEIGHT, FGUI_COLOR(0,0,0), NULL);
+	fgui_fill_circle(160+5, 5+3*LINEHEIGHT, 5, FGUI_COLOR(255, 255, 255));
+	fgui_draw_circle(160+5, 5+3*LINEHEIGHT, 5, FGUI_COLOR(120,120,120));
+	fgui_fill_circle(160+5, 5+3*LINEHEIGHT, 3, FGUI_COLOR(48, 48, 152));
+	fgui_draw_circle(160+5, 5+3*LINEHEIGHT, 3, FGUI_COLOR(48, 48, 192));
 
-	fgui_draw_string("circle", 10, 4*LINEHEIGHT, FGUI_COLOR(0,0,0), NULL);
-	fgui_draw_circle(160+5, 5+4*LINEHEIGHT, 5, FGUI_COLOR(255, 255, 255));
+	fgui_fill_circle(160+25, 5+3*LINEHEIGHT, 5, FGUI_COLOR(255, 255, 255));
+	fgui_draw_circle(160+25, 5+3*LINEHEIGHT, 5, FGUI_COLOR(120,120,120));
+	fgui_fill_circle(160+45, 5+3*LINEHEIGHT, 5, FGUI_COLOR(255, 255, 255));
+	fgui_draw_circle(160+45, 5+3*LINEHEIGHT, 5, FGUI_COLOR(120,120,120));
 
-	fgui_draw_string("this colored string\nspans multiple\nlines", 160, 5*LINEHEIGHT,
+	fgui_draw_string("this colored string\nspans multiple\nlines", 160, 4*LINEHEIGHT,
 		FGUI_COLOR(255,0,0), NULL);
 
+	fgui_draw_string("checkbox", 10, 6*LINEHEIGHT, FGUI_COLOR(0,0,0), NULL);
 	fgui_draw_string("push button", 10, 7*LINEHEIGHT, FGUI_COLOR(0,0,0), NULL);
 	fgui_draw_string("2nd push button", 10, 8*LINEHEIGHT, FGUI_COLOR(0,0,0), NULL);
 	fgui_draw_string("label widget", 10, 10*LINEHEIGHT, FGUI_COLOR(0,0,0), NULL);
@@ -78,6 +88,12 @@ void on_button_click(void *arg)
 void on_combobox_change(void *userdata)
 {
 	printf("%s\n", __func__);
+}
+
+void on_checkbox_change(void *userdata)
+{
+  int *clicked = userdata;
+  printf("%s = %s\n", __func__, *clicked ? "true" : "false");
 }
 
 enum fgui_key sdl_keysym_to_fgui_key(SDLKey sdl_keysym)
@@ -115,6 +131,7 @@ int main(int argc, char *argv[])
 	};
 
 	fgui_application_init(&app);
+	fgui_checkbox_init(&checkbox, 160, 6*LINEHEIGHT, 82, 15, "check it!", NULL);
 	fgui_button_init(&button, 160, 7*LINEHEIGHT, 82, 15, "hello world", NULL);
 	fgui_button_init(&button2, 160, 8*LINEHEIGHT, 82, 15, "hello world 2", NULL);
 	fgui_combobox_init(&combobox, 160, 9*LINEHEIGHT, 60, 15, NULL);
@@ -124,6 +141,7 @@ int main(int argc, char *argv[])
 	fgui_combobox_add_item(&combobox, "item2");
 	fgui_combobox_add_item(&combobox, "item3");
 	fgui_combobox_set_index(&combobox, 0);
+	fgui_application_add_widget(&app, (struct fgui_widget *)&checkbox);
 	fgui_application_add_widget(&app, &button.base);
 	fgui_application_add_widget(&app, &button2.base);
 	fgui_application_add_widget(&app, (struct fgui_widget *)&label);
@@ -132,6 +150,7 @@ int main(int argc, char *argv[])
 	fgui_button_set_on_click_handler(&button, on_button_click, &btn_cb_data);
 	fgui_button_set_on_click_handler(&button2, on_button_click, &btn_cb_data2);
 	fgui_combobox_set_on_change_handler(&combobox, on_combobox_change, NULL);
+	fgui_checkbox_set_on_click_handler(&checkbox, on_checkbox_change, NULL);
 
 	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
 		fprintf(stderr, "Unable to init SDL: %s\n", SDL_GetError());
@@ -148,6 +167,7 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 
+	SDL_EnableUNICODE(1);
 	while (1) {
 		render_stuff();
 
@@ -165,6 +185,11 @@ int main(int argc, char *argv[])
 		case SDL_KEYDOWN:
 			fgui_event.type = FGUI_EVENT_KEYDOWN;
 			fgui_event.key.keycode = sdl_keysym_to_fgui_key(event.key.keysym.sym);
+			if ((fgui_event.key.keycode >= 'a') && (fgui_event.key.keycode <= 'z'))
+			{
+			  if (event.key.keysym.mod & KMOD_SHIFT) 
+			    fgui_event.key.keycode = toupper(fgui_event.key.keycode);
+			}
 			fgui_application_process_event(&app, &fgui_event);
 			break;
 

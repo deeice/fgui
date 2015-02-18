@@ -15,7 +15,97 @@
 #include "fgui_font_data.h"
 #include "utils.h"
 
+#ifdef USE_SDL_TTF
+#include <SDL/SDL_ttf.h>
+TTF_Font *font = NULL;
 
+static char fgui_font[256] = "font.ttf";
+static char ctest[8] = {0};
+
+static int fgui_load_font(int size)
+{
+  if(font != NULL){
+    TTF_CloseFont(font);
+    font = NULL;
+  }
+  else if (TTF_Init() == -1)
+    return 0;
+  font = TTF_OpenFont(fgui_font, size);
+  return (font != NULL);
+}
+
+//TTF_SizeUTF8(font, ctest, &x, &y);
+
+int fgui_char_width(const int c)
+{
+  int x, y;
+  if (c <= 0)
+    ctest[0] = 0;
+  else
+    ctest[0] = 'M';
+  TTF_SizeText(font, ctest, &x, &y);
+  return x;
+}
+
+int fgui_char_height(const int c)
+{
+  int x, y;
+  if (c <= 0)
+    ctest[0] = 0;
+  else
+    ctest[0] = 'X';
+  TTF_SizeText(font, ctest, &x, &y);
+  return y;
+}
+
+int fgui_str_width(char *str, int n)
+{
+  int x, y;
+  char c;
+  if (n >= 0) {
+    c = str[n];
+    str[n] = 0;
+  }
+  TTF_SizeText(font, str, &x, &y);
+  if (n >= 0)
+    str[n] = c;
+  return x;
+}
+
+extern SDL_Surface *gScreen;
+char strbuf[32768];
+
+/** draw a single character */
+void fgui_draw_string(const char *str, uint16_t x, uint16_t y, uint32_t color,
+		      struct fgui_rect *clip)
+{
+  SDL_Surface *text;
+  SDL_Rect rect;
+  SDL_Color fg = {0,0,0, 0xff};
+  char *s, *p;
+    
+  if ((font == NULL) && (fgui_load_font(10) == 0))
+    return;
+
+  fg.r = 0xff & (color >> 16);
+  fg.g = 0xff & (color >> 8);
+  fg.b = 0xff & (color >> 0);
+  rect.x = x;
+  rect.y = y-2; // Makeup for tweaks applied for the bitmap font.
+  strcpy(strbuf, str);
+  for (s = strbuf; s != NULL; s = p){
+    if (p = strchr(s, '\n'))
+      *p = 0;
+    text = TTF_RenderUTF8_Blended(font, s, fg);
+    SDL_BlitSurface(text, NULL, gScreen, &rect);
+    SDL_FreeSurface(text);
+    if (p)
+      *p++ = '\n';
+    rect.y += fgui_char_height(0);
+  }
+}
+
+#else
 /** get the index of character 'ch' in the cAscii array */
 static int get_char_index(char ch)
 {
@@ -92,3 +182,5 @@ void fgui_draw_string(const char *str, uint16_t x, uint16_t y, uint32_t color,
 		column++;
 	}
 }
+
+#endif

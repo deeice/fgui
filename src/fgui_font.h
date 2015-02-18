@@ -29,5 +29,6 @@ void fgui_draw_string(const char *str, uint16_t x, uint16_t y, uint32_t color,
 
 int fgui_char_width(const int c);
 int fgui_char_height(const int c);
+int fgui_str_width(char *str, int n);
 
 #endif /* FGUI_FONT_H */
