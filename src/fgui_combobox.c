@@ -111,73 +111,12 @@ void fgui_combobox_set_index(struct fgui_combobox *combobox, size_t index)
 	}
 }
 
+static int fgui_combobox_type = 0; // Cheap hack to multipurpose combobox
+
 void fgui_combobox_draw(struct fgui_widget *widget)
 {
 	size_t i;
 	struct fgui_combobox *combobox = (struct fgui_combobox *)widget;
-#if 0
-	if (!combobox->base.has_focus) {
-		combobox->is_expanded = false;
-	}
-
-	if (combobox->is_expanded) {
-		/* combobox background */
-		fgui_fill_rectangle(combobox->base.area.x, combobox->base.area.y,
-				combobox->base.area.w, combobox->base.area.h * combobox->num_items,
-				FGUI_COMBOBOX_BG_COLOR);
-
-		/* highlight current item */
-		fgui_fill_rectangle(combobox->base.area.x,
-				combobox->base.area.y + combobox->base.area.h * combobox->current_item,
-				combobox->base.area.w,
-				combobox->base.area.h,
-				FGUI_COMBOBOX_HIGHLIGHT_COLOR);
-
-		/* border */
-		fgui_draw_rectangle(combobox->base.area.x, combobox->base.area.y,
-				combobox->base.area.w, combobox->base.area.h * combobox->num_items,
-				FGUI_COMBOBOX_FOCUS_COLOR);
-
-		for (i = 0; i < combobox->num_items; i++) {
-			/* current item text */
-			fgui_draw_string(combobox->items[i].text,
-					combobox->base.area.x+2,
-					combobox->base.area.y+2 + combobox->base.area.h * i,
-					FGUI_COMBOBOX_TEXT_COLOR, NULL);
-		}
-	} else {
-		/* combobox background */
-		fgui_fill_rectangle(combobox->base.area.x, combobox->base.area.y,
-				combobox->base.area.w, combobox->base.area.h,
-				FGUI_COMBOBOX_BG_COLOR);
-
-		/* border */
-		fgui_draw_rectangle(combobox->base.area.x, combobox->base.area.y,
-				combobox->base.area.w, combobox->base.area.h,
-				FGUI_COMBOBOX_BORDER_COLOR);
-
-		/* if focus, draw red border */
-		if (combobox->base.has_focus) {
-			fgui_draw_rectangle(combobox->base.area.x, combobox->base.area.y,
-					combobox->base.area.w, combobox->base.area.h,
-					FGUI_COMBOBOX_FOCUS_COLOR);
-		}
-
-		/* current item text */
-		fgui_draw_string(combobox->items[combobox->current_item].text,
-				combobox->base.area.x+2, combobox->base.area.y+2,
-				FGUI_COMBOBOX_TEXT_COLOR, NULL);
-
-		/* draw arrow to indicate that this is a combobox */
-		fgui_draw_triangle(combobox->base.area.x + combobox->base.area.w - 15,
-				combobox->base.area.y + combobox->base.area.h / 2 - 2,
-				combobox->base.area.x + combobox->base.area.w - 5,
-				combobox->base.area.y + combobox->base.area.h / 2 - 2,
-				combobox->base.area.x + combobox->base.area.w - 10,
-				combobox->base.area.y + combobox->base.area.h / 2 + 3,
-				FGUI_COMBOBOX_BORDER_COLOR);
-	}
-#else
 	int n = 1;
 	int h = combobox->base.area.h*n;
 	int x1 = combobox->base.area.x+2;
@@ -185,8 +124,8 @@ void fgui_combobox_draw(struct fgui_widget *widget)
 	int x2 = x1+combobox->base.area.w-5;
 	int y2 = y1+h-1;
 
-	if (!combobox->base.has_focus) {
-		combobox->is_expanded = false;
+	if (!combobox->base.has_focus && !fgui_combobox_type) { // Cheap hack
+			combobox->is_expanded = false;
 	} else if (combobox->is_expanded) {
 		n = combobox->num_items;
 		h = combobox->base.area.h*n;
@@ -197,6 +136,7 @@ void fgui_combobox_draw(struct fgui_widget *widget)
 	fgui_fill_rectangle(combobox->base.area.x, combobox->base.area.y, combobox->base.area.w, h,
 			FGUI_COMBOBOX_BG_COLOR);
 
+	if (fgui_combobox_type == 0){ // Cheap hack to multipurpose combobox
 	/* border */
 	fgui_draw_line(x1, y1, x2, y1, FGUI_COMBOBOX_BORDER_COLOR);
 	fgui_draw_line(x1, y2, x2, y2, FGUI_COMBOBOX_BORDER_COLOR);
@@ -214,6 +154,7 @@ void fgui_combobox_draw(struct fgui_widget *widget)
 
 	fgui_draw_line(x1-1, y1+2, x1-1, y2-2, FGUI_COMBOBOX_TOP_COLOR);
 	fgui_draw_line(x2+1, y1+2, x2+1, y2-2, FGUI_COMBOBOX_BOT_COLOR);
+	}
 
 	if (combobox->is_expanded) {
 		/* highlight current item */
@@ -250,12 +191,13 @@ void fgui_combobox_draw(struct fgui_widget *widget)
 				combobox->base.area.y + combobox->base.area.h / 2 + 3,
 				FGUI_COMBOBOX_BORDER_COLOR);
 	}
+	if (fgui_combobox_type == 0){ // Cheap hack to multipurpose combobox
 	/* draw rounded border corners */
 	fgui_set_pixel(x1-1,y1+1, FGUI_COMBOBOX_BORDER_COLOR);
 	fgui_set_pixel(x2+1,y1+1, FGUI_COMBOBOX_BORDER_COLOR);
 	fgui_set_pixel(x1-1,y2-1, FGUI_COMBOBOX_BORDER_COLOR);
 	fgui_set_pixel(x2+1,y2-1, FGUI_COMBOBOX_BORDER_COLOR);
-#endif
+	}
 }
 
 int fgui_combobox_event_handler(struct fgui_widget *widget, struct fgui_event *event)
@@ -302,3 +244,82 @@ void fgui_combobox_set_on_change_handler(struct fgui_combobox *combobox,
 	combobox->on_change = callback;
 	combobox->on_change_userdata = userdata;
 }
+
+/**********************************************************************************/
+void fgui_listbox_draw(struct fgui_widget *widget)
+{
+	struct fgui_listbox *listbox = (struct fgui_listbox *)widget;
+	int has_focus = listbox->base.has_focus;
+	int w = -1+listbox->base.area.w;
+	int h = -1+listbox->base.area.h*listbox->num_items;
+
+	listbox->base.has_focus = true; //  avoid the shrinking of unfocused combox.
+	listbox->is_expanded = true;
+	fgui_combobox_type = 1; // Cheap hack to multipurpose combobox
+	fgui_combobox_draw(widget);
+	fgui_combobox_type = 0; // Cheap hack to multipurpose combobox
+	listbox->is_expanded = true;
+	listbox->base.has_focus = has_focus;
+
+	/* border */
+	fgui_draw_line(listbox->base.area.x, listbox->base.area.y, 
+		       listbox->base.area.x+w, listbox->base.area.y,
+		       FGUI_COMBOBOX_BORDER_COLOR);
+	fgui_draw_line(listbox->base.area.x, listbox->base.area.y, 
+		       listbox->base.area.x, listbox->base.area.y+h,
+		       FGUI_COMBOBOX_BORDER_COLOR);
+	fgui_draw_line(listbox->base.area.x, listbox->base.area.y+h,
+		       listbox->base.area.x+w, listbox->base.area.y+h,
+		       FGUI_COLOR(255, 255, 255));
+	fgui_draw_line(listbox->base.area.x+w, listbox->base.area.y,
+		       listbox->base.area.x+w, listbox->base.area.y+h,
+		       FGUI_COLOR(255, 255, 255));
+
+	/* if focus, draw red border */
+	if (listbox->base.has_focus) {
+		fgui_draw_rectangle(1+listbox->base.area.x, 
+			1+listbox->base.area.y + listbox->base.area.h * listbox->current_item,
+			w-1, listbox->base.area.h-1,
+			FGUI_COMBOBOX_FOCUS_COLOR);
+	}
+
+}
+
+int fgui_listbox_init(struct fgui_listbox *listbox, uint16_t x, uint16_t y,
+		uint16_t w, uint16_t h, struct fgui_widget *parent)
+{
+	int ret;
+	ret = fgui_combobox_init(listbox, x, y, w, h, parent);
+	fgui_widget_set_draw((struct fgui_widget *)listbox, fgui_listbox_draw);
+	listbox->base.event_handler = fgui_listbox_event_handler;
+	listbox->is_expanded = true;
+	return ret;
+}
+
+int fgui_listbox_event_handler(struct fgui_widget *widget, struct fgui_event *event)
+{
+	struct fgui_listbox *listbox = (struct fgui_listbox *)widget;
+
+	if (event->type == FGUI_EVENT_KEYDOWN && event->key.keycode == FGUI_KEY_ARROW_DOWN) {
+		if (listbox->current_item < listbox->num_items - 1)
+			listbox->current_item++;
+		return 0;
+	}
+
+	if (event->type == FGUI_EVENT_KEYDOWN && event->key.keycode == FGUI_KEY_ARROW_UP) {
+		if (listbox->current_item > 0) 
+			listbox->current_item--;
+		return 0;
+	}
+
+	if (event->type == FGUI_EVENT_KEYDOWN && event->key.keycode == FGUI_KEY_RETURN) {
+		if (listbox->on_change) 
+			listbox->on_change(listbox->on_change_userdata);
+		return 0;
+	}
+
+	/* we didn't handle the event */
+	return 1;
+}
+
+

@@ -25,6 +25,17 @@
 
 #define FGUI_MAX_CHILDREN 10
 
+#define FGUI_WIDGET_BG_COLOR     FGUI_COLOR(0xc0,0xc0,0xc0)
+#define FGUI_WIDGET_BORDER_COLOR FGUI_COLOR(0x60, 0x60, 0x60)
+#define FGUI_WIDGET_TEXT_COLOR   FGUI_COLOR(0, 0, 0)
+#define FGUI_WIDGET_FOCUS_COLOR  FGUI_COLOR(255, 0, 0)
+
+#define FGUI_WIDGET_TOP_COLOR    FGUI_COLOR(0xdc, 0xdc, 0xdc)
+#define FGUI_WIDGET_TOQ_COLOR    FGUI_COLOR(0xd8, 0xd8, 0xd8)
+#define FGUI_WIDGET_TOR_COLOR    FGUI_COLOR(0xc8, 0xc8, 0xc8)
+#define FGUI_WIDGET_BOR_COLOR    FGUI_COLOR(0xb8, 0xb8, 0xb8)
+#define FGUI_WIDGET_BOQ_COLOR    FGUI_COLOR(0xb0, 0xb0, 0xb0)
+#define FGUI_WIDGET_BOT_COLOR    FGUI_COLOR(0xa8, 0xa8, 0xa8)
 
 enum fgui_focus_policy {
 	FGUI_NO_FOCUS,  //< widget do not accept focus (e.g. label widgets)

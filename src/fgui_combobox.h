@@ -52,4 +52,12 @@ int fgui_combobox_event_handler(struct fgui_widget *widget, struct fgui_event *e
 void fgui_combobox_set_on_change_handler(struct fgui_combobox *combobox,
 		void (*callback)(void *userdata), void *userdata);
 
+#define fgui_listbox fgui_combobox
+#define fgui_listbox_add_item fgui_combobox_add_item
+#define fgui_listbox_set_index fgui_combobox_set_index
+int fgui_listbox_event_handler(struct fgui_widget *widget, struct fgui_event *event);
+int fgui_listbox_init(struct fgui_listbox *listbox, uint16_t x, uint16_t y,
+		uint16_t w, uint16_t h, struct fgui_widget *parent);
+void fgui_listbox_draw(struct fgui_widget *widget);
+
 #endif /* FGUI_COMBOBOX_H */
