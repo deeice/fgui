@@ -60,4 +60,21 @@ int fgui_listbox_init(struct fgui_listbox *listbox, uint16_t x, uint16_t y,
 		uint16_t w, uint16_t h, struct fgui_widget *parent);
 void fgui_listbox_draw(struct fgui_widget *widget);
 
+// Simulate menubar with combobox to test how it looks.
+#define fgui_menubar 		fgui_combobox
+int fgui_menubar_event_handler(struct fgui_widget *widget, struct fgui_event *event);
+int fgui_menubar_init(struct fgui_menubar *menubar, uint16_t x, uint16_t y,
+		uint16_t w, uint16_t h, struct fgui_widget *parent);
+int fgui_menubar_add_item(struct fgui_menubar *menubar, const char *text, struct fgui_widget *child);
+#define fgui_menubar_set_index	fgui_combobox_set_index
+void fgui_menubar_draw(struct fgui_widget *widget);
+
+#define fgui_dropmenu 		fgui_combobox
+int fgui_dropmenu_event_handler(struct fgui_widget *widget, struct fgui_event *event);
+int fgui_dropmenu_init(struct fgui_dropmenu *dropmenu, uint16_t x, uint16_t y,
+		uint16_t w, uint16_t h, struct fgui_widget *parent);
+#define fgui_dropmenu_add_item	fgui_combobox_add_item
+#define fgui_dropmenu_set_index	fgui_combobox_set_index
+void fgui_dropmenu_draw(struct fgui_widget *widget);
+
 #endif /* FGUI_COMBOBOX_H */

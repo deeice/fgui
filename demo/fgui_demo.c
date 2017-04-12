@@ -19,12 +19,8 @@ struct fgui_checkbox checkbox;
 
 struct fgui_listbox listbox;
 
-// Simulate menubar with combobox to test how it looks.
-#define fgui_menubar 		fgui_combobox
-#define fgui_menubar_init	fgui_combobox_init
-#define fgui_menubar_add_item	fgui_combobox_add_item
-#define fgui_menubar_set_index	fgui_combobox_set_index
 struct fgui_menubar menubar; 
+struct fgui_dropmenu dropmenu; 
 
 // define the "callback" that fgui uses to set pixels
 void fgui_set_pixel(uint16_t x, uint16_t y, uint32_t color)
@@ -172,12 +168,16 @@ int main(int argc, char *argv[])
 	fgui_combobox_set_on_change_handler(&combobox, on_combobox_change, NULL);
 	fgui_checkbox_set_on_click_handler(&checkbox, on_checkbox_change, NULL);
 
+	fgui_dropmenu_init(&menubar, 0, 0, 80, 15, NULL);
+	fgui_dropmenu_add_item(&dropmenu, "menuitem1");
+	fgui_dropmenu_add_item(&dropmenu, "menuitem2");
+	fgui_dropmenu_add_item(&dropmenu, "menuitem3");
+	fgui_dropmenu_set_index(&dropmenu, 0);
+
 	fgui_menubar_init(&menubar, 0, 0, 320, 15, NULL);
-	fgui_menubar_add_item(&menubar, "Menubar");
-	fgui_menubar_add_item(&menubar, "menuitem1");
-	fgui_menubar_add_item(&menubar, "menuitem2");
-	fgui_menubar_add_item(&menubar, "menuitem3");
-	fgui_menubar_set_index(&menubar, 0);
+	fgui_menubar_add_item(&menubar, "Menu1", (struct fgui_widget *)&dropmenu);
+	fgui_menubar_add_item(&menubar, "Menu2", NULL);
+	fgui_menubar_add_item(&menubar, "Help", NULL);
 	fgui_application_add_widget(&app, (struct fgui_widget *)&menubar);
 
 	if (SDL_Init(SDL_INIT_VIDEO) < 0) {

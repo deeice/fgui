@@ -124,19 +124,22 @@ void fgui_combobox_draw(struct fgui_widget *widget)
 	int x2 = x1+combobox->base.area.w-5;
 	int y2 = y1+h-1;
 
-	if (!combobox->base.has_focus && !fgui_combobox_type) { // Cheap hack
+	if (!combobox->base.has_focus && !(fgui_combobox_type & 1)) { // Cheap hack
 			combobox->is_expanded = false;
 	} else if (combobox->is_expanded) {
 		n = combobox->num_items;
 		h = combobox->base.area.h*n;
 		y2 = y1+h-1;
 	}
+	if (!combobox->is_expanded && (fgui_combobox_type & 4)) { // Cheap hack
+		return;
+	}
 
 	/* combobox background */
 	fgui_fill_rectangle(combobox->base.area.x, combobox->base.area.y, combobox->base.area.w, h,
 			FGUI_COMBOBOX_BG_COLOR);
 
-	if (fgui_combobox_type == 0){ // Cheap hack to multipurpose combobox
+	if (!(fgui_combobox_type & 1)){ // Cheap hack to multipurpose combobox
 	/* border */
 	fgui_draw_line(x1, y1, x2, y1, FGUI_COMBOBOX_BORDER_COLOR);
 	fgui_draw_line(x1, y2, x2, y2, FGUI_COMBOBOX_BORDER_COLOR);
@@ -170,6 +173,7 @@ void fgui_combobox_draw(struct fgui_widget *widget)
 				FGUI_COMBOBOX_TEXT_COLOR, NULL);
 		}
 	} else {
+		if (!(fgui_combobox_type & 2)){ // Cheap hack to multipurpose combobox
 		/* if focus, draw red border */
 		if (combobox->base.has_focus) {
 			fgui_draw_rectangle(combobox->base.area.x, combobox->base.area.y,
@@ -190,8 +194,9 @@ void fgui_combobox_draw(struct fgui_widget *widget)
 				combobox->base.area.x + combobox->base.area.w - 10,
 				combobox->base.area.y + combobox->base.area.h / 2 + 3,
 				FGUI_COMBOBOX_BORDER_COLOR);
+		}
 	}
-	if (fgui_combobox_type == 0){ // Cheap hack to multipurpose combobox
+	if (!(fgui_combobox_type & 1)){ // Cheap hack to multipurpose combobox
 	/* draw rounded border corners */
 	fgui_set_pixel(x1-1,y1+1, FGUI_COMBOBOX_BORDER_COLOR);
 	fgui_set_pixel(x2+1,y1+1, FGUI_COMBOBOX_BORDER_COLOR);
@@ -321,5 +326,147 @@ int fgui_listbox_event_handler(struct fgui_widget *widget, struct fgui_event *ev
 	/* we didn't handle the event */
 	return 1;
 }
+
+/**********************************************************************************/
+void fgui_menubar_draw(struct fgui_widget *widget)
+{
+	struct fgui_menubar *menubar = (struct fgui_menubar *)widget;
+	int is_expanded = menubar->is_expanded;
+	int x1 = menubar->base.area.x+2;
+	int y1 = menubar->base.area.y;
+	int n = menubar->num_items;
+	int w = menubar->base.area.w / n;
+	int h = -1+menubar->base.area.h;
+	int i;
+
+	menubar->is_expanded = false;
+	fgui_combobox_type = 2; // Cheap hack to multipurpose combobox
+	fgui_combobox_draw(widget);
+	fgui_combobox_type = 0; // Cheap hack to multipurpose combobox
+	menubar->is_expanded = is_expanded;
+
+	/* draw item text */
+	for (i = 0; i < menubar->num_items; i++) {
+		/* current item text */
+		fgui_draw_string(menubar->items[i].text,
+			x1 + w*i, menubar->base.area.y+2,
+			FGUI_COMBOBOX_TEXT_COLOR, NULL);
+	}
+
+	/* if focus, draw red border */
+	if (menubar->base.has_focus) {
+	  if (menubar->current_item < 0)
+	    fgui_menubar_set_index(menubar, 0);
+	  fgui_draw_rectangle(-1+x1 + w * menubar->current_item, 
+			1+y1, w-1, h,
+			FGUI_COMBOBOX_FOCUS_COLOR);
+	}
+	else if (menubar->current_item != 0)
+	  fgui_menubar_set_index(menubar, 0);
+}
+
+// Make menubar a BUTTON, but with no focus, then just pretend to hookup dropdowns?
+int fgui_menubar_init(struct fgui_menubar *menubar, uint16_t x, uint16_t y,
+		uint16_t w, uint16_t h, struct fgui_widget *parent)
+{
+	int ret;
+	ret = fgui_combobox_init(menubar, x, y, w, h, parent);
+	//menubar->base.focus_policy = FGUI_NO_FOCUS;
+	fgui_widget_set_draw((struct fgui_widget *)menubar, fgui_menubar_draw);
+	menubar->base.event_handler = fgui_menubar_event_handler;
+	return ret;
+}
+
+int fgui_menubar_event_handler(struct fgui_widget *widget, struct fgui_event *event)
+{
+	struct fgui_menubar *menubar = (struct fgui_menubar *)widget;
+
+	if (event->type == FGUI_EVENT_KEYDOWN && event->key.keycode == FGUI_KEY_ARROW_RIGHT) {
+		if (menubar->current_item < menubar->num_items - 1)
+			menubar->current_item++;
+		return 0;
+	}
+
+	if (event->type == FGUI_EVENT_KEYDOWN && event->key.keycode == FGUI_KEY_ARROW_LEFT) {
+		if (menubar->current_item > 0) 
+			menubar->current_item--;
+		return 0;
+	}
+
+	if (event->type == FGUI_EVENT_KEYDOWN && event->key.keycode == FGUI_KEY_RETURN) {
+		if (menubar->on_change) 
+			menubar->on_change(menubar->on_change_userdata);
+		return 0;
+	}
+
+	/* we didn't handle the event */
+	return 1;
+}
+
+int fgui_menubar_add_item(struct fgui_menubar *menubar, const char *text, struct fgui_widget *child)
+{
+	int ret = fgui_combobox_add_item(menubar, text);
+	
+	return ret;
+}
+
+/**********************************************************************************/
+void fgui_dropmenu_draw(struct fgui_widget *widget)
+{
+	struct fgui_dropmenu *dropmenu = (struct fgui_dropmenu *)widget;
+	int w = -1+dropmenu->base.area.w;
+	int h = -1+dropmenu->base.area.h*dropmenu->num_items;
+
+	fgui_combobox_type = 4; // Cheap hack to multipurpose combobox
+	fgui_combobox_draw(widget);
+	fgui_combobox_type = 0; // Cheap hack to multipurpose combobox
+
+	/* if focus, draw red border */
+	if (dropmenu->base.has_focus) {
+		fgui_draw_rectangle(1+dropmenu->base.area.x, 
+			1+dropmenu->base.area.y + dropmenu->base.area.h * dropmenu->current_item,
+			w-1, dropmenu->base.area.h-1,
+			FGUI_COMBOBOX_FOCUS_COLOR);
+	}
+
+}
+
+int fgui_dropmenu_init(struct fgui_dropmenu *dropmenu, uint16_t x, uint16_t y,
+		uint16_t w, uint16_t h, struct fgui_widget *parent)
+{
+	int ret;
+	ret = fgui_combobox_init(dropmenu, x, y, w, h, parent);
+	fgui_widget_set_draw((struct fgui_widget *)dropmenu, fgui_dropmenu_draw);
+	dropmenu->base.event_handler = fgui_dropmenu_event_handler;
+	dropmenu->is_expanded = true;
+	return ret;
+}
+
+int fgui_dropmenu_event_handler(struct fgui_widget *widget, struct fgui_event *event)
+{
+	struct fgui_dropmenu *dropmenu = (struct fgui_dropmenu *)widget;
+
+	if (event->type == FGUI_EVENT_KEYDOWN && event->key.keycode == FGUI_KEY_ARROW_DOWN) {
+		if (dropmenu->current_item < dropmenu->num_items - 1)
+			dropmenu->current_item++;
+		return 0;
+	}
+
+	if (event->type == FGUI_EVENT_KEYDOWN && event->key.keycode == FGUI_KEY_ARROW_UP) {
+		if (dropmenu->current_item > 0) 
+			dropmenu->current_item--;
+		return 0;
+	}
+
+	if (event->type == FGUI_EVENT_KEYDOWN && event->key.keycode == FGUI_KEY_RETURN) {
+		if (dropmenu->on_change) 
+			dropmenu->on_change(dropmenu->on_change_userdata);
+		return 0;
+	}
+
+	/* we didn't handle the event */
+	return 1;
+}
+
 
 
